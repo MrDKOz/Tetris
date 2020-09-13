@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Tetris.Models;
 
 namespace Tetris.Classes
 {
@@ -113,7 +114,6 @@ namespace Tetris.Classes
         /// <returns>A randomly chosen Piece.</returns>
         public Piece FetchNewPiece()
         {
-            //return Pieces[0];
             return _pieces[_random.Next(_pieces.Count)];
         }
     }

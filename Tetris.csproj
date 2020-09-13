@@ -46,18 +46,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\Piece.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Helpers\MovementHelper.cs" />
+    <Compile Include="Models\ActivePiece.cs" />
+    <Compile Include="Classes\BackgroundTile.cs" />
+    <Compile Include="Models\Piece.cs" />
     <Compile Include="Classes\PieceManager.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="frmTetris.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="frmTetris.Designer.cs">
+      <DependentUpon>frmTetris.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Placement.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="frmTetris.resx">
+      <DependentUpon>frmTetris.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

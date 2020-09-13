@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace Tetris.Classes
+namespace Tetris.Models
 {
     public class Piece
     {
@@ -18,6 +18,6 @@ namespace Tetris.Classes
         public Names Name { get; set; }
         public Color Color { get; set; }
         public int[,] Shape { get; set; }
-        public int Rotations { get; set; }
+        public Placement CurrentPlacement { get; set; }
     }
 }
