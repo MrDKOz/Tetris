@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Tetris.Classes;
 using Tetris.Extensions;
@@ -9,9 +10,11 @@ namespace Tetris.Helpers
 {
     public class MovementHelper
     {
-        public int maxX = 10;
-        public int maxY = 20;
+        // Game grid dimensions
+        public const int MaxX = 10;
+        public const int MaxY = 20;
 
+        // Directions the piece can be moved in
         public enum Direction
         {
             Left,
@@ -54,42 +57,48 @@ namespace Tetris.Helpers
             return newPlacement;
         }
 
-        public bool CheckIfMoveIsValid(Placement newPlacement, TableLayoutPanel gameGrid, Placement currentPlacement)
+        /// <summary>
+        /// Checks if the move meets the following requirements:
+        /// 1. New placement is within the bounds of the game grid
+        /// 2. New placement is not overlapping with another set piece
+        /// </summary>
+        /// <param name="piece">The piece we're moving.</param>
+        /// <param name="newPlacement">The requested placement of the next piece.</param>
+        /// <param name="gameGrid">The game grid.</param>
+        /// <returns>True/False as to whether the given move is valid</returns>
+        public bool CheckIfMoveIsValid(Placement newPlacement, TableLayoutPanel gameGrid)
         {
             var defaultBackgroundColour = new BackgroundTile().Default().BackColor;
 
             // Check we're within our bounds
-            var moveIsValid = newPlacement.ActiveCells.None(p => p.X < 0 || p.X >= maxX || p.Y > maxY);
+            var moveIsValid = newPlacement.ActiveCells.None(p => p.X < 0 || p.X >= MaxX || p.Y > MaxY);
 
-            if (moveIsValid)
+            if (!moveIsValid) return false; // We're out out of bounds, no need to check the rest
+
+            // We're in bounds, let's check if we're colliding with another piece
+            foreach (var focusedPanel in newPlacement.ActiveCells.Select(newPoint => GetGridPoint(newPoint.X, newPoint.Y, gameGrid)))
             {
-                foreach (var point in currentPlacement.ActiveCells)
-                {
-                    var panel = GetGridPoint(point.X, point.Y, gameGrid);
-                    panel.BackColor = defaultBackgroundColour;
-                }
+                // Check if the focused panel is the default background colour
+                // if it's not then we know we've hit another piece
+                moveIsValid = focusedPanel.BackColor == defaultBackgroundColour;
 
-                // We're within bounds, let's check for a collision
-                foreach (var point in newPlacement.ActiveCells)
-                {
-                    var panel = GetGridPoint(point.X, point.Y, gameGrid);
-
-                    moveIsValid = panel.BackColor == defaultBackgroundColour;
-
-                    if (!moveIsValid)
-                    {
-                        foreach (var point1 in currentPlacement.ActiveCells)
-                        {
-                            var panel1 = GetGridPoint(point.X, point.Y, gameGrid);
-                            panel.BackColor = Color.Aqua;
-                        }
-
-                        break;
-                    }
-                }
+                if (!moveIsValid)
+                    break; // Move isn't valid, no need to continue
             }
 
             return moveIsValid;
+        }
+
+        /// <summary>
+        /// Draws the given placement on the game grid in the given colour.
+        /// </summary>
+        /// <param name="focusPlacement">The placement to draw.</param>
+        /// <param name="color">The color to draw the placement in.</param>
+        /// <param name="gameGrid">The game grid.</param>
+        private void ManageActivePieceVisibility(Placement focusPlacement, Color color, TableLayoutPanel gameGrid)
+        {
+            foreach (var panel in focusPlacement.ActiveCells.Select(point => GetGridPoint(point.X, point.Y, gameGrid)))
+                panel.BackColor = color;
         }
 
         /// <summary>
@@ -97,6 +106,7 @@ namespace Tetris.Helpers
         /// </summary>
         /// <param name="x">X co-ordinate.</param>
         /// <param name="y">Y co-ordinate.</param>
+        /// <param name="gameGrid">The grid in which the game takes place</param>
         /// <returns>The panel at the given co-ordinates.</returns>
         private Panel GetGridPoint(int x, int y, TableLayoutPanel gameGrid)
         {

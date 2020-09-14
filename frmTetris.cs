@@ -63,25 +63,38 @@ namespace Tetris
         /// </summary>
         private void MovePiece(MovementHelper.Direction direction)
         {
-            var defaultTile = new BackgroundTile().Default();
+            var defaultPanel = new BackgroundTile().Default().BackColor;
             var newPlacement = _movementHelper.CalculateMovement(direction, _piece.CurrentPlacement);
+            
+            // Clear the current piece from the game grid
+            // so we don't interfere with collision detection
+            DrawPlacement(_piece.CurrentPlacement, defaultPanel);
 
             // Ensure next placement is valid
-            if (_movementHelper.CheckIfMoveIsValid(newPlacement, tlpGameGrid, _piece.CurrentPlacement))
+            if (_movementHelper.CheckIfMoveIsValid(newPlacement, tlpGameGrid))
             {
-                // Clear currently active cells
-                foreach (var panel in _piece.CurrentPlacement.ActiveCells.Select(point => GetGridPoint(point.X, point.Y)))
-                    panel.BackColor = defaultTile.BackColor;
-
                 // Paint piece in new location
-                foreach (var panel in newPlacement.ActiveCells.Select(point => GetGridPoint(point.X, point.Y)))
-                    panel.BackColor = _piece.Color;
+                DrawPlacement(newPlacement, _piece.Color);
 
                 // Piece moved successfully, so update the piece
                 _piece.CurrentPlacement = newPlacement;
             }
-            else if (newPlacement.ActiveCells.Any(p => p.Y > maxY))
+            else
+            {
+                DrawPlacement(_piece.CurrentPlacement, _piece.Color);
                 SpawnNewPiece();
+            }
+        }
+
+        /// <summary>
+        /// Draws the given placement on the game grid in the given colour.
+        /// </summary>
+        /// <param name="focusPlacement">The placement to draw.</param>
+        /// <param name="color">The color to draw the placement in.</param>
+        private void DrawPlacement(Placement focusPlacement, Color color)
+        {
+            foreach (var panel in focusPlacement.ActiveCells.Select(point => GetGridPoint(point.X, point.Y)))
+                panel.BackColor = color;
         }
 
         /// <summary>
